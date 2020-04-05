@@ -1,33 +1,47 @@
 openapi: 3.0.0
 info:
-  version: 1.0.0
   title: Pet project
+  version: 1.0.0
 servers:
-  - url: 'http://localhost:3000'
+- url: http://localhost:30000
 paths:
   /token:
     post:
-      summary: 'Returns authorization token'
-      operationID: getToken
       tags:
-        - token
-        - oauth2
+      - authentication
+      summary: Returns authorization token
+      operationId: tokenPOST
       requestBody:
-        description: 'oauth2 standard body'
+        description: oauth2 standard body
         content:
-          application/json:
+          'application/x-www-form-urlencoded:':
             schema:
-              oneOf:
-                - $ref: '#/components/schemas/Oauth2_password'
-                - $ref: '#/components/schemas/Oauth2_client_credentials'
-                - $ref: '#/components/schemas/Oauth2_refresh_token'
-              discriminator:
-                propertyName: grant_type   
-                
+              $ref: '#/components/schemas/body'
+            examples:
+              password:
+                summary: Get token by password
+                value:
+                  grant_type: password
+                  client_id: MyClientId
+                  username: MyUsername
+                  password: MyPassword
+              client_credentials:
+                summary: Get token by client credentials
+                value:
+                  grant_type: client_credentials
+                  client_id: MyClientId
+                  client_secret: MyClientSecret
+              refresh_token:
+                summary: Get token by refresh
+                value:
+                  grant_type: refresh_token
+                  client_id: MyClientId
+                  client_secret: MyClientSecret
+                  refresh_token: MyRefreshToken
         required: true
       responses:
-        '200':
-          description: 'Access token'
+        "200":
+          description: Access token
           content:
             application/json:
               schema:
@@ -39,26 +53,31 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
       x-codegen-request-body-name: body
+      x-swagger-router-controller: Authentication
   /user:
     get:
+      tags:
+      - user
       summary: 'Sample endpoint: Returns details about a particular user'
       operationId: listUser
-      tags:
-        - user
       parameters:
-        - name: id
-          in: query
-          description: ID of the user
-          required: true
-          schema:
-            type: integer
-            format: int32
+      - name: id
+        in: query
+        description: ID of the user
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: integer
+          format: int32
       responses:
-        '200':
+        "200":
           description: 'Sample response: Details about a user by ID'
           headers:
             x-next:
               description: A link to the next page of responses
+              style: simple
+              explode: false
               schema:
                 type: string
           content:
@@ -71,104 +90,107 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+      x-swagger-router-controller: User
 components:
   schemas:
     Oauth2_password:
-      type: object
       required:
-        - grant_type
-        - username
-        - password
-        - client_id
+      - client_id
+      - grant_type
+      - password
+      - username
+      type: object
       properties:
         grant_type:
+          type: string
+          description: Type of authentication used
+          example: password
+          default: password
           enum:
-            - 'password'
-          default: 'password'
+          - password
+        client_id:
           type: string
-          example: 'password'
-          description: 'Type of authentication used'
-        client_id: 
-          type: string
-          example: 'MyClientId'
-          description: 'Id of the authorization client'
+          description: Id of the authorization client
+          example: MyClientId
         password:
           type: string
-          example: 'MyPassword'
-          description: 'password used to authenticate'
+          description: password used to authenticate
+          example: MyPassword
         username:
-          example: 'MyUsername'
           type: string
-          description: 'username used to authenticate'
-          
+          description: username used to authenticate
+          example: MyUsername
     Oauth2_client_credentials:
-      type: object
       required:
-        - grant_type
-        - client_secret
-        - client_id
+      - client_id
+      - client_secret
+      - grant_type
+      type: object
       properties:
         grant_type:
+          type: string
+          description: Type of authentication used
+          default: client_credentials
           enum:
-            - 'client_credentials'
-          default: 'client_credentials'
+          - client_credentials
+        client_id:
           type: string
-          description: 'Type of authentication used'
-        client_id: 
-          type: string
-          example: 'MyclientId'
+          example: MyclientId
         client_secret:
           type: string
-          example: 'MySecret'
-          
+          example: MySecret
     Oauth2_refresh_token:
-      type: object
       required:
-        - grant_type
-        - client_id
-        - client_secret
-        - refresh_token
+      - client_id
+      - client_secret
+      - grant_type
+      - refresh_token
+      type: object
       properties:
         grant_type:
+          type: string
+          description: Type of authentication used
+          default: refresh_token
           enum:
-            - 'refresh_token'
-          default: 'refresh_token'
+          - refresh_token
+        client_id:
           type: string
-          description: 'Type of authentication used'
-        client_id: 
-          type: string
-          example: 'MyClient'
+          example: MyClient
         client_secret:
           type: string
-          example: 'MySecret'
+          example: MySecret
         refresh_token:
           type: string
-          example: 'MyToken'
-          
+          example: MyToken
     Token:
       type: object
       properties:
         access_token:
           type: string
-          example: 'Thisisatoken'
-        token_type: 
+          example: Thisisatoken
+        token_type:
           type: string
-          example: 'bearer'
+          example: bearer
         expires_in:
           type: string
-          example: '1560'
+          example: "1560"
         refresh_token:
           type: string
-          example: 'this is a refreshtoken'
+          example: this is a refreshtoken
         scope:
           type: string
           example: '*'
-    
+      example:
+        access_token: Thisisatoken
+        refresh_token: this is a refreshtoken
+        scope: '*'
+        token_type: bearer
+        expires_in: "1560"
     User:
-      type: object
       required:
-        - id
-        - name
+      - id
+      - name
+      type: object
       properties:
         id:
           type: integer
@@ -177,14 +199,25 @@ components:
           type: string
         tag:
           type: string
+      example:
+        name: name
+        id: 0
+        tag: tag
     Error:
-      type: object
       required:
-        - code
-        - message
+      - code
+      - message
+      type: object
       properties:
         code:
           type: integer
           format: int32
         message:
           type: string
+    body:
+      discriminator:
+        propertyName: grant_type
+      oneOf:
+      - $ref: '#/components/schemas/Oauth2_password'
+      - $ref: '#/components/schemas/Oauth2_client_credentials'
+      - $ref: '#/components/schemas/Oauth2_refresh_token'
