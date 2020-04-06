@@ -92,6 +92,13 @@ paths:
                 $ref: '#/components/schemas/Error'
       x-swagger-router-controller: User
 components:
+  securitySchemes:
+    oAuthSample:    # <---- arbitrary name
+      type: oauth2
+      description: This API uses OAuth 2 with the implicit grant flow. [More info](https://api.example.com/docs/auth)
+      flows:
+        clientCredentials:   # <---- OAuth flow(authorizationCode, implicit, password or clientCredentials)
+          tokenUrl: /token
   schemas:
     Oauth2_password:
       required:
@@ -214,6 +221,7 @@ components:
           format: int32
         message:
           type: string
+    
     body:
       discriminator:
         propertyName: grant_type
@@ -221,3 +229,7 @@ components:
       - $ref: '#/components/schemas/Oauth2_password'
       - $ref: '#/components/schemas/Oauth2_client_credentials'
       - $ref: '#/components/schemas/Oauth2_refresh_token'
+      
+security: 
+  - oAuthSample: 
+    - read_User
