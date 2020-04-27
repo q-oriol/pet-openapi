@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Pet project
-  version: 1.0.0
+  version: 1.0.1
 servers:
 - url: http://localhost:30000
 paths:
@@ -16,7 +16,7 @@ paths:
         content:
           'application/x-www-form-urlencoded:':
             schema:
-              $ref: '#/components/schemas/bodys'
+              $ref: '#/components/schemas/body'
             examples:
               password:
                 summary: Get token by password
