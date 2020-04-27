@@ -2,13 +2,16 @@ openapi: 3.0.0
 info:
   title: Pet project Oriol
   version: 1.0.1
+  description: ''
+  contact:
+    name: oriol
 servers:
-- url: http://localhost:30000
+  - url: 'http://localhost:30000'
 paths:
   /token:
     post:
       tags:
-      - authentication
+        - authentication
       summary: Returns authorization token
       operationId: tokenPOST
       requestBody:
@@ -16,7 +19,7 @@ paths:
         content:
           'application/x-www-form-urlencoded:':
             schema:
-              $ref: '#/components/schemas/bodys'
+              $ref: '#/components/schemas/body'
             examples:
               password:
                 summary: Get token by password
@@ -40,7 +43,7 @@ paths:
                   refresh_token: MyRefreshToken
         required: true
       responses:
-        "200":
+        '200':
           description: Access token
           content:
             application/json:
@@ -57,21 +60,21 @@ paths:
   /user:
     get:
       tags:
-      - user
+        - user
       summary: 'Sample endpoint: Returns details about a particular user'
       operationId: listUser
       parameters:
-      - name: id
-        in: query
-        description: ID of the user
-        required: true
-        style: form
-        explode: true
-        schema:
-          type: integer
-          format: int32
+        - name: id
+          in: query
+          description: ID of the user
+          required: true
+          style: form
+          explode: true
+          schema:
+            type: integer
+            format: int32
       responses:
-        "200":
+        '200':
           description: 'Sample response: Details about a user by ID'
           headers:
             x-next:
@@ -93,19 +96,19 @@ paths:
       x-swagger-router-controller: User
 components:
   securitySchemes:
-    oAuthSample:    # <---- arbitrary name
+    oAuthSample:
       type: oauth2
-      description: This API uses OAuth 2 with the implicit grant flow. [More info](https://api.example.com/docs/auth)
+      description: 'This API uses OAuth 2 with the implicit grant flow. [More info](https://api.example.com/docs/auth)'
       flows:
-        clientCredentials:   # <---- OAuth flow(authorizationCode, implicit, password or clientCredentials)
+        clientCredentials:
           tokenUrl: /token
   schemas:
     Oauth2_password:
       required:
-      - client_id
-      - grant_type
-      - password
-      - username
+        - client_id
+        - grant_type
+        - password
+        - username
       type: object
       properties:
         grant_type:
@@ -114,7 +117,7 @@ components:
           example: password
           default: password
           enum:
-          - password
+            - password
         client_id:
           type: string
           description: Id of the authorization client
@@ -129,9 +132,9 @@ components:
           example: MyUsername
     Oauth2_client_credentials:
       required:
-      - client_id
-      - client_secret
-      - grant_type
+        - client_id
+        - client_secret
+        - grant_type
       type: object
       properties:
         grant_type:
@@ -139,7 +142,7 @@ components:
           description: Type of authentication used
           default: client_credentials
           enum:
-          - client_credentials
+            - client_credentials
         client_id:
           type: string
           example: MyclientId
@@ -148,10 +151,10 @@ components:
           example: MySecret
     Oauth2_refresh_token:
       required:
-      - client_id
-      - client_secret
-      - grant_type
-      - refresh_token
+        - client_id
+        - client_secret
+        - grant_type
+        - refresh_token
       type: object
       properties:
         grant_type:
@@ -159,7 +162,7 @@ components:
           description: Type of authentication used
           default: refresh_token
           enum:
-          - refresh_token
+            - refresh_token
         client_id:
           type: string
           example: MyClient
@@ -171,32 +174,39 @@ components:
           example: MyToken
     Token:
       type: object
+      example:
+        access_token: Thisisatoken
+        refresh_token: this is a refreshtoken
+        scope: '*'
+        token_type: bearer
+        expires_in: '1560'
+      x-examples:
+        example-1: {}
+      description: |
+        asd
       properties:
         access_token:
           type: string
           example: Thisisatoken
+          description: sad
         token_type:
           type: string
           example: bearer
         expires_in:
           type: string
-          example: "1560"
+          example: '1560'
         refresh_token:
           type: string
           example: this is a refreshtoken
         scope:
           type: string
           example: '*'
-      example:
-        access_token: Thisisatoken
-        refresh_token: this is a refreshtoken
-        scope: '*'
-        token_type: bearer
-        expires_in: "1560"
+        '':
+          type: string
     User:
       required:
-      - id
-      - name
+        - id
+        - name
       type: object
       properties:
         id:
@@ -212,8 +222,8 @@ components:
         tag: tag
     Error:
       required:
-      - code
-      - message
+        - code
+        - message
       type: object
       properties:
         code:
@@ -221,15 +231,13 @@ components:
           format: int32
         message:
           type: string
-    
     body:
       discriminator:
         propertyName: grant_type
       oneOf:
-      - $ref: '#/components/schemas/Oauth2_password'
-      - $ref: '#/components/schemas/Oauth2_client_credentials'
-      - $ref: '#/components/schemas/Oauth2_refresh_token'
-      
-security: 
-  - oAuthSample: 
-    - read_User
+        - $ref: '#/components/schemas/Oauth2_password'
+        - $ref: '#/components/schemas/Oauth2_client_credentials'
+        - $ref: '#/components/schemas/Oauth2_refresh_token'
+security:
+  - oAuthSample:
+      - read_User
